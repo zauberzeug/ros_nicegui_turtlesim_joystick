@@ -23,6 +23,7 @@ class SimpleJoystick(Node):
                     ui.joystick(
                         color='blue',
                         size=50,
+                        #Note: x has to be inverted. Negative values turn the turtle to the right.
                         on_move=lambda e: self.publish_speeds(-e.x, e.y),
                         on_end=lambda _: self.publish_speeds(0.0, 0.0),
                     ).classes('my-joystick')
@@ -30,10 +31,14 @@ class SimpleJoystick(Node):
                     ui.label('Publish steering commands by dragging your mouse around in the blue field').classes('mt-6')
                 with ui.card().classes('w-44 text-center items-center'):
                     ui.label('Speeds').classes('text-2xl')
-                    ui.label('linear velocity').classes('text-xs mb-[-1.8em]')
                     slider_props = 'readonly selection-color=transparent'
+
+                    #create a slider & labelfor the linear speed
+                    ui.label('linear velocity').classes('text-xs mb-[-1.8em]')
                     self.linear = ui.slider(min=-1, max=1, step=0.05, value=0).props(slider_props)
                     ui.label().bind_text_from(self.linear,'value', backward=lambda value: f'{value:.3f}')
+                    
+                    #create a slider & label for the angular speed
                     ui.label('angular velocity').classes('text-xs mb-[-1.8em]')
                     self.angular = ui.slider(min=-1, max=1, step=0.05, value=0).props(slider_props)
                     ui.label().bind_text_from(self.angular,'value', backward=lambda value: f'{value:.3f}')
@@ -44,10 +49,10 @@ class SimpleJoystick(Node):
         self.get_logger().info('Publishing1-> linear: "%f", angular: "%f"' % (y, x))
         #this is for the sliders
         self.linear.value = y
-        self.angular.value = -x
+        self.angular.value = x
         #loading values into the message
         msg.linear.x = y
-        msg.angular.z = x
+        msg.angular.z = x 
         self.publisher_.publish(msg)
 
 def ros_main() -> None:
