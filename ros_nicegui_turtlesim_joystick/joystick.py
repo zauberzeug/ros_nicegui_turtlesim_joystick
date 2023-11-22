@@ -3,7 +3,7 @@ from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 from geometry_msgs.msg import Twist
 
-from nicegui import app, globals, run, ui
+from nicegui import app, Client, ui_run, ui
 import threading
 from pathlib import Path
 
@@ -13,7 +13,7 @@ class SimpleJoystick(Node):
         self.publisher_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 1)
 
         #this is where we add nicegui elements
-        with globals.index_client:
+        with Client.auto_index_client:
             #create a row
             with ui.row().classes('items-stretch'):
                 #create a card with the joystick in it
@@ -76,7 +76,7 @@ def main():
 app.on_startup(lambda: threading.Thread(target=ros_main).start())
 
 #This is for the automatic reloading by nicegui/fastapi
-run.APP_IMPORT_STRING = f'{__name__}:app'
+ui_run.APP_IMPORT_STRING = f'{__name__}:app'
 
 #We add reload dirs to just watch changes in our package
 ui.run(title='Turtlesim Joystick',uvicorn_reload_dirs=str(Path(__file__).parent.resolve()))
