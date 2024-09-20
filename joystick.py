@@ -3,7 +3,7 @@ from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 from geometry_msgs.msg import Twist
 
-from nicegui import app, Client, ui_run, ui
+from nicegui import app, Client, ui
 import threading
 from pathlib import Path
 
@@ -66,17 +66,12 @@ def ros_main() -> None:
         rclpy.spin(simple_joystick)
     except ExternalShutdownException:
         pass
-
-def main():
-    pass # NOTE: This is originally used as the ROS entry point, but we give the control of the node to NiceGUI.
-
+    finally:
+        simple_joystick.destroy_node()
 
 #Starting the ros node in a thread managed by nicegui. It will restarted with "on_startup" after a reload.
 #It has to be in a thread, since NiceGUI wants the main thread for itself.
 app.on_startup(lambda: threading.Thread(target=ros_main).start())
-
-#This is for the automatic reloading by nicegui/fastapi
-ui_run.APP_IMPORT_STRING = f'{__name__}:app'
 
 #We add reload dirs to just watch changes in our package
 ui.run(title='Turtlesim Joystick',uvicorn_reload_dirs=str(Path(__file__).parent.resolve()))
